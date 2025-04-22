@@ -58,8 +58,7 @@ class MainActivity : AppCompatActivity() {
                             // show snack bar
                             showToast(
                                 this@MainActivity, getString(
-                                    R.string.ws_battery_info_success,
-                                    level, isCharging, temperature
+                                    R.string.ws_battery_info_success, level, temperature
                                 )
                             )
                         }

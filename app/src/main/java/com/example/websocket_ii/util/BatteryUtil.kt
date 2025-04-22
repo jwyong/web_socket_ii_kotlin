@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.os.Build
 import com.example.websocket_ii.data.model.BatteryInfo
 
 object BatteryUtil {
@@ -15,8 +16,7 @@ object BatteryUtil {
 
             BatteryInfo(
                 level = getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY),
-                isCharging = isCharging,
-                temperature = temperature / 10
+                temperature = temperature / 10,
             )
         }
     }

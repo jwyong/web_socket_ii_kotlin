@@ -8,6 +8,6 @@
     <string name="previous">Previous</string>
 
     <string name="get_battery_info_title">Click FAB to retrieve battery info</string>
-    <string name="ws_battery_info_success">Battery info received: level: %1$d%%, charging: %2$b, temp: %3$d°C</string>
+    <string name="ws_battery_info_success">Battery info received: level: %1$d%%, temp: %2$d°C</string>
 
 </resources>
