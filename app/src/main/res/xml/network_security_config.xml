@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-</PreferenceScreen>
+<network-security-config>
+    <!-- Allow cleartext traffic to EC2 (not using TSL for dev) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">54.251.4.93</domain>
+    </domain-config>
+</network-security-config>

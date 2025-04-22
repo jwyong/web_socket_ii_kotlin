@@ -7,6 +7,10 @@ android {
     namespace = "com.example.websocket_ii"
     compileSdk = 35
 
+    buildFeatures {
+        buildConfig = true // Enable BuildConfig feature
+    }
+
     defaultConfig {
         applicationId = "com.example.websocket_ii"
         minSdk = 24
@@ -18,6 +22,9 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "WS_URL", "\"ws://54.251.4.93:8080/ws/battery\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -49,4 +56,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation(libs.okhttp)
+    implementation(libs.gson)
 }
