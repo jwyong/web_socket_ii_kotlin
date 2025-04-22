@@ -1,20 +1,25 @@
-package com.example.websocket_ii
+package com.example.websocket_ii.ui.main
 
+import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.example.websocket_ii.R
 import com.example.websocket_ii.databinding.ActivityMainBinding
+import com.example.websocket_ii.respository.WebSocketRepository
+import com.example.websocket_ii.service.WebSocketService
+import com.example.websocket_ii.util.showToast
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,14 +29,43 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        // Start the WebSocket service to keep the connection alive
+        val serviceIntent = Intent(this, WebSocketService::class.java)
+        startService(serviceIntent)
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+        collectStateFlow()
+
+        binding.fab.setOnClickListener {
+            // Call ViewModel to get battery info and send it to WebSocket
+            mainViewModel.getBatteryInfo()
+        }
+    }
+
+    private fun collectStateFlow() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    mainViewModel.batteryInfo.collect { batteryInfo ->
+                        println("JAY_LOG, MainActivity, collectStateFlow: MainVM battInfo = $batteryInfo")
+                        batteryInfo?.let { mainViewModel.sendBatteryInfoToWebSocket(it) }
+                    }
+                }
+                launch {
+                    WebSocketRepository.wsResponseBatt.collect { batteryInfo ->
+                        println("JAY_LOG, MainActivity, collectStateFlow: wsResp battInfo = $batteryInfo")
+
+                        with(batteryInfo) {
+                            // show snack bar
+                            showToast(
+                                this@MainActivity, getString(
+                                    R.string.ws_battery_info_success,
+                                    level, isCharging, temperature
+                                )
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -49,11 +83,5 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
     }
 }
